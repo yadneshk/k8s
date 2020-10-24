@@ -5,7 +5,7 @@ to deploy 1 master & n worker nodes
 
 
 # Set hostname for the worker node
-hostamectl set-hostname <master_hostname>
+hostnamectl set-hostname <master_hostname>
 
 # Load `br_netfilter` kernel module
 sudo modprobe br_netfilter
@@ -20,7 +20,7 @@ sudo sysctl --system
 # Uncomment below if using RHEL
 #subscription-manager unregister
 #subscription-manager clean
-#subscription-manager register --activationkey cee-sk-130 --org 1979710
+#subscription-manager register --activationkey <key> --org <org_id>
 #subscription-manager repos --enable=rhel-7-server-rpms --enable=rhel-7-server-extras-rpms
 
 # Install firewalld and enable the service
@@ -65,7 +65,7 @@ systemctl restart kubelet
 systemctl restart docker 
 
 # Initialize control-plane
-kubeadm init
+kubeadm init &> join.txt
 
 # Export path to the certificates for kubernetes-admin user
 export KUBECONFIG=/etc/kubernetes/admin.conf
@@ -79,3 +79,10 @@ kubectl get nodes
 # Setup pod network 
 export kubever=$(kubectl version | base64 | tr -d '\n')
 kubectl apply -f "https://cloud.weave.works/k8s/net?k8s-version=$kubever"
+
+# Setup k8s dashboard 
+# https://kubernetes.io/docs/tasks/access-application-cluster/web-ui-dashboard/
+kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v2.0.0/aio/deploy/recommended.yaml
+kubectl proxy
+
+

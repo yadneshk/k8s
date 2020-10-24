@@ -5,7 +5,7 @@ to deploy 1 master & n worker nodes
 
 
 # Set hostname for the worker node
-hostamectl set-hostname <worker_hostname>
+hostnamectl set-hostname <worker_hostname>
 
 # Load `br_netfilter` kernel module
 sudo modprobe br_netfilter
