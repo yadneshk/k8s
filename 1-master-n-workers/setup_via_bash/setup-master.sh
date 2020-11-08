@@ -64,8 +64,11 @@ systemctl daemon-reload
 systemctl restart kubelet
 systemctl restart docker 
 
-# Initialize control-plane
-kubeadm init &> join.txt
+# Initialize control-plane, if using 1 master node
+kubeadm init --apiserver-advertise-address $(hostname -i) &> join.txt
+
+# Initialize control-plane, if using 3 master node specify the IP of the loadbalancer
+kubeadm init --apiserver-advertise-address <loadbalancer_ip> &> join.txt
 
 # Export path to the certificates for kubernetes-admin user
 export KUBECONFIG=/etc/kubernetes/admin.conf
