@@ -1,0 +1,21 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: app-config
+  labels:
+    app: app-config
+spec:
+  containers:
+  - name: nginx
+    image: nginx
+    command: ["/bin/sh", "-c", "echo 'Yo! This is $(SERVER1_NAME) webserver' > /usr/share/nginx/html/index.html; sleep 3600"]
+    ports:
+    - containerPort: 80
+    env:
+      - name: SERVER1_NAME
+        valueFrom:
+          configMapKeyRef:
+            name: myconfig
+            key: server1_name
+            optional: true
+    
