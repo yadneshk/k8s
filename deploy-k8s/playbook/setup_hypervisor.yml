@@ -1,0 +1,53 @@
+---
+  - hosts: host
+    tasks:
+      - name: Install libvirt packages
+        yum:
+          name: "{{item}}"
+          state: latest
+        loop:
+          - libvirt-client
+          - libvirt-daemon
+          - qemu-kvm
+          - libvirt-daemon-driver-qemu
+          - libvirt-daemon-kvm
+          - virt-install
+          - bridge-utils
+          - libguestfs-tools
+          - net-tools
+          - libguestfs-xfs
+          - net-tools
+          - python-setuptools
+          - wget
+
+      - name: Starting libvirtd service
+        systemd:
+          name: libvirtd
+          state: started
+
+      - name: Enabling libvirtd
+        systemd:
+          name: libvirtd
+          enabled: yes
+
+      - name: Create /home/images dir
+        file:
+          path: /home/images
+          state: directory
+          mode: '0755'
+
+      - name: Remove images directory
+        file:
+          path: /var/lib/libvirt/images
+          state: absent
+
+      - name: Creating softlinks for /home/images
+        file:
+          dest: /var/lib/libvirt/images
+          src: /home/images
+          state: link
+
+      - name: Fetching RHEL 7 KVM image
+        get_url:
+          url: https://cloud.centos.org/centos/7/images/CentOS-7-x86_64-GenericCloud.qcow2
+          dest: /home/images
