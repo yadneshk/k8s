@@ -2,5 +2,5 @@
   - name: Install pkgs and pull centos image
     import_playbook: setup_hypervisor.yml
 
-  #- name: Spawn VMs to setup k8s cluster nodes
-  #  import_playbook: setup_nodes.yml
+  - name: Spawn VMs to setup k8s cluster nodes
+    import_playbook: setup_nodes.yml

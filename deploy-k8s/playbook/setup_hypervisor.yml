@@ -1,5 +1,7 @@
 ---
   - hosts: host
+    vars_files:
+      - ./vars/hypervisor_vars.yml
     tasks:
       - name: Install libvirt packages
         yum:
@@ -8,6 +10,7 @@
         loop:
           - libvirt-client
           - libvirt-daemon
+          - python-lxml
           - qemu-kvm
           - libvirt-daemon-driver-qemu
           - libvirt-daemon-kvm
@@ -47,7 +50,25 @@
           src: /home/images
           state: link
 
-      - name: Fetching RHEL 7 KVM image
-        get_url:
-          url: https://cloud.centos.org/centos/7/images/CentOS-7-x86_64-GenericCloud.qcow2
-          dest: /home/images
+      - name: Define default network
+        virt_net:
+          command: define
+          name: "{{item.network_name}}"
+          xml: "{{ lookup('template', 'files/' + item.network_file) }}"
+        loop:
+          - network_name: default
+            network_file: network.xml.j2
+
+      - name: Start default network
+        virt_net:
+          command: start
+          name: "{{ item }}"
+        loop:
+          - default
+
+      - name: Autostart default network
+        virt_net:
+          autostart: yes
+          name: "{{ item }}"
+        loop:
+          - default

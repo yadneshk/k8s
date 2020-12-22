@@ -1,0 +1,43 @@
+---
+- name: Clean k8s nodes
+  hosts: host
+  vars_files:
+    - ./vars/node_vars.yml
+  tasks:
+    - name: Delete master nodes
+      virt:
+        name: "{{ item }}"
+        state: destroyed
+      with_sequence: start=1 end={{ nodes.master_nodes }} format={{ nodes.master_node_format }}%x
+
+    - name: Undefine master nodes
+      virt:
+        command: undefine
+        name: "{{ item }}"
+      with_sequence: start=1 end={{ nodes.master_nodes }} format={{ nodes.master_node_format }}%x
+      ignore_errors: True
+
+    - name: Delete master nodes disks
+      file:
+        path: "{{ vm_location }}/{{ item }}.qcow2"
+        state: absent
+      with_sequence: start=1 end={{ nodes.master_nodes }} format={{ nodes.master_node_format }}%x
+
+    - name: Delete worker nodes
+      virt:
+        name: "{{ item }}"
+        state: destroyed
+      with_sequence: start=1 end={{ nodes.worker_nodes }} format={{ nodes.worker_node_format }}%x
+
+    - name: Undefine worker nodes
+      virt:
+        command: undefine
+        name: "{{ item }}"
+      with_sequence: start=1 end={{ nodes.worker_nodes }} format={{ nodes.worker_node_format }}%x
+      ignore_errors: True
+
+    - name: Delete worker nodes disks
+      file:
+        path: "{{ vm_location }}/{{ item }}.qcow2"
+        state: absent
+      with_sequence: start=1 end={{ nodes.worker_nodes }} format={{ nodes.worker_node_format }}%x
