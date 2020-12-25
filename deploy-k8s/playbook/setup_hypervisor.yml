@@ -10,6 +10,7 @@
         loop:
           - libvirt-client
           - libvirt-daemon
+          - python
           - python-lxml
           - qemu-kvm
           - libvirt-daemon-driver-qemu
