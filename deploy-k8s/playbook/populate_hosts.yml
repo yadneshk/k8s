@@ -1,0 +1,27 @@
+---
+  - name: Find VMs
+    hosts: host
+    tasks:
+      - name: find vms
+        virt:
+          command: list_vms
+        register: all_vms
+
+      - name: prepare VM ips
+        script: ./populate_hosts.py {{ item }}
+        args:
+          executable: python3
+        loop: "{{ all_vms.list_vms }}"
+        register: output
+
+      - name: Mark Ansible entry in hosts
+        lineinfile:
+          path: /etc/hosts
+          line: "# ANSIBLE MANAGED BLOCK"
+
+      - name: Add mappings to /etc/hosts
+        lineinfile:
+          path: /etc/hosts
+          line: "{{ item.stdout_lines[0] }} {{ item.item }}"
+          insertafter: "# ANSIBLE MANAGED BLOCK"
+        loop: "{{ output.results }}"
