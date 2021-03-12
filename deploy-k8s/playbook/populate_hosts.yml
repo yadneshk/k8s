@@ -8,7 +8,7 @@
         register: all_vms
 
       - name: prepare VM ips
-        script: ./populate_hosts.py {{ item }}
+        script: ./scripts/populate_hosts.py "{{ item }}"
         args:
           executable: python3
         loop: "{{ all_vms.list_vms }}"

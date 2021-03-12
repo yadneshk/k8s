@@ -13,6 +13,7 @@
       command: >
                virt-builder --format qcow2 centos-7.8
                -o {{ vm_location}}/{{item}}.qcow2
+               --hostname {{ item }}
                --root-password password:{{ root_pass }}
       with_sequence: start=1 end={{nodes.master_nodes}} format={{nodes.master_node_format}}%x
 
@@ -20,23 +21,30 @@
       command: >
                virt-builder --format qcow2 centos-7.8
                -o {{ vm_location}}/{{item}}.qcow2
+               --hostname {{ item }}
                --root-password password:{{ root_pass }}
       with_sequence: start=1 end={{nodes.worker_nodes}} format={{nodes.worker_node_format}}%x
 
     - name: Create master nodes VMs
       command: >
-                virt-install --import --name {{ item }}
-                --memory {{ master_specs.mem }} --vcpus {{ master_specs.cpus }}
+                virt-install --import 
+                --name {{ item }}
+                --memory {{ master_specs.mem }} 
+                --vcpus {{ master_specs.cpus }}
                 --disk {{ vm_location }}/{{ item }}.qcow2
-                --noautoconsole --os-variant {{ master_specs.os_type }}
+                --noautoconsole 
+                --os-variant {{ master_specs.os_type }}
       with_sequence: start=1 end={{nodes.master_nodes}} format={{nodes.master_node_format}}%x
 
     - name: Create worker nodes VMs
       command: >
-                virt-install --import --name {{ item }}
-                --memory {{ worker_specs.mem }} --vcpus {{ worker_specs.cpus }}
+                virt-install --import 
+                --name {{ item }}
+                --memory {{ worker_specs.mem }} 
+                --vcpus {{ worker_specs.cpus }}
                 --disk {{ vm_location }}/{{ item }}.qcow2
-                --noautoconsole --os-variant {{ master_specs.os_type }}
+                --noautoconsole 
+                --os-variant {{ worker_specs.os_type }}
       with_sequence: start=1 end={{nodes.worker_nodes}} format={{nodes.worker_node_format}}%x
 
     - name: Start master VMs

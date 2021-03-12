@@ -23,6 +23,7 @@
           - net-tools
           - python-setuptools
           - wget
+          - python3
 
       - name: Starting libvirtd service
         systemd:
