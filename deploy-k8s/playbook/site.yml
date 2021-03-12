@@ -4,3 +4,6 @@
 
   - name: Spawn VMs to setup k8s cluster nodes
     import_playbook: setup_nodes.yml
+
+  - name: Gather ip addresses of cluster nodes
+    import_playbook: populate_hosts.yml
