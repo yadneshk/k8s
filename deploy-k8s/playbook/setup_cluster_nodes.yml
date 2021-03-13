@@ -42,3 +42,7 @@
       - firewalld
       - docker
       - kubelet
+
+  - name: Disable swap
+    shell: |
+      swapoff -a

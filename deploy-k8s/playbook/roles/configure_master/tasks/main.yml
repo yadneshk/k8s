@@ -1,2 +1,45 @@
 ---
 # tasks file for configure_master
+  - name: Enable ports necessary for master nodes
+    firewalld:
+      port: "{{ item }}"
+      permanent: yes
+      immediate: yes
+      state: enabled
+    loop:
+      - 6443/tcp
+      - 2379-2380/tcp
+      - 10250/tcp
+      - 10251/tcp
+      - 10252/tcp
+
+  - name: Check if already initialized
+    stat: 
+      path: "{{ kubeadmin_config }}" 
+    register: file_stats
+    tags: yadnesh
+
+  - name: Initialize control plane
+    shell: |
+      kubeadm init 
+    register: init_cluster
+    when: not file_stats.stat.exists
+    tags: yadnesh
+
+  - name: Create Kubernetes config directory
+    file:
+      path: "$HOME/.kube/"
+      state: directory
+    tags: yadnesh
+
+  - name: Copy admin.conf to Home directory
+    when: init_cluster is succeeded
+    copy:
+      src: "{{ kubeadmin_config }}"
+      dest: ".kube/config"
+      owner: "{{ ansible_user | default(ansible_user_id) }}"
+      group: "{{ ansible_user | default(ansible_user_id) }}"
+      mode: 0755
+      remote_src: true
+    tags: yadnesh
+

@@ -20,3 +20,14 @@
     tasks:
       - name: Setup configurations needed on all nodes
         include_tasks: setup_cluster_nodes.yml
+
+  - name: Master node configs
+    hosts: master
+    any_errors_fatal: true
+    tags: mas
+    vars_files:
+      - ./vars/hypervisor_vars.yml
+      - ./vars/node_vars.yml
+    roles:
+      - configure_master
+    

@@ -1,2 +1,3 @@
 ---
 # vars file for configure_master
+kubeadmin_config: /etc/kubernetes/admin.conf
