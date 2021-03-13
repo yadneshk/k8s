@@ -1,76 +1,86 @@
 ---
-  - hosts: host
-    vars_files:
-      - ./vars/hypervisor_vars.yml
-    tasks:
-      - name: Install libvirt packages
-        yum:
-          name: "{{item}}"
-          state: latest
-        loop:
-          - libvirt-client
-          - libvirt-daemon
-          - python
-          - python-lxml
-          - qemu-kvm
-          - libvirt-daemon-driver-qemu
-          - libvirt-daemon-kvm
-          - virt-install
-          - bridge-utils
-          - libguestfs-tools
-          - net-tools
-          - libguestfs-xfs
-          - net-tools
-          - python-setuptools
-          - wget
-          - python3
+  - name: Install libvirt,qemu packages
+    yum:
+      name: "{{item}}"
+      state: latest
+    loop:
+      - libvirt-client
+      - libvirt-daemon
+      - python
+      - python-lxml
+      - qemu-kvm
+      - libvirt-daemon-driver-qemu
+      - libvirt-daemon-kvm
+      - virt-install
+      - bridge-utils
+      - libguestfs-tools
+      - net-tools
+      - libguestfs-xfs
+      - net-tools
+      - python-setuptools
+      - wget
+      - python3
 
-      - name: Starting libvirtd service
-        systemd:
-          name: libvirtd
-          state: started
+  - name: Starting libvirtd service
+    systemd:
+      name: libvirtd
+      state: started
 
-      - name: Enabling libvirtd
-        systemd:
-          name: libvirtd
-          enabled: yes
+  - name: Enabling libvirtd
+    systemd:
+      name: libvirtd
+      enabled: yes
 
-      - name: Create /home/images dir
-        file:
-          path: /home/images
-          state: directory
-          mode: '0755'
+  - name: Create /home/images dir
+    file:
+      path: /home/images
+      state: directory
+      mode: '0755'
+    tags: target
 
-      - name: Remove images directory
-        file:
-          path: /var/lib/libvirt/images
-          state: absent
+  - name: Check for images softlink
+    stat: path=/var/lib/libvirt/images
+    register: link_status
+    tags: target
 
-      - name: Creating softlinks for /home/images
-        file:
-          dest: /var/lib/libvirt/images
-          src: /home/images
-          state: link
+  - name: Remove images directory
+    file:
+      path: /var/lib/libvirt/images
+      state: absent
+    tags: target
+    when: link_status.stat.islnk is defined and 
+          link_status.stat.islnk==false and 
+          link_status.stat.lnk_target is not defined
 
-      - name: Define default network
-        virt_net:
-          command: define
-          name: "{{item.network_name}}"
-          xml: "{{ lookup('template', 'files/' + item.network_file) }}"
-        loop:
-          - network_name: default
-            network_file: network.xml.j2
+  - name: Creating softlinks for /home/images
+    file:
+      dest: /var/lib/libvirt/images
+      src: /home/images
+      state: link
+    tags: target
+    when: link_status.stat.islnk is defined and 
+          link_status.stat.islnk==false and 
+          link_status.stat.lnk_target is not defined
 
-      - name: Start default network
-        virt_net:
-          command: start
-          name: "{{ item }}"
-        loop:
-          - default
+  - name: Define default network
+    virt_net:
+      command: define
+      name: "{{item.network_name}}"
+      xml: "{{ lookup('template', 'files/' + item.network_file) }}"
+    loop:
+      - network_name: default
+        network_file: network.xml.j2
 
-      - name: Autostart default network
-        virt_net:
-          autostart: yes
-          name: "{{ item }}"
-        loop:
-          - default
+  - name: Start default network
+    virt_net:
+      command: start
+      name: "{{ item }}"
+    loop:
+      - default
+
+  - name: Autostart default network
+    virt_net:
+      autostart: yes
+      name: "{{ item }}"
+    loop:
+      - default

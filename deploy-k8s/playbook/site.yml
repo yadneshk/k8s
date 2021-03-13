@@ -1,9 +1,24 @@
 ---
-  - name: Install pkgs and pull centos image
-    import_playbook: setup_hypervisor.yml
+  - name: Configure KVM host
+    hosts: host
+    vars_files:
+      - ./vars/hypervisor_vars.yml
+      - ./vars/node_vars.yml
+    tasks:
+      - name: Install pkgs and pull centos image
+        import_tasks: setup_hypervisor.yml
+    
+      - name: Spawn VMs to setup k8s cluster nodes
+        import_tasks: setup_nodes.yml
+    
+      - name: Gather ip addresses of cluster nodes
+        import_tasks: populate_hosts.yml
 
-  - name: Spawn VMs to setup k8s cluster nodes
-    import_playbook: setup_nodes.yml
-
-  - name: Gather ip addresses of cluster nodes
-    import_playbook: populate_hosts.yml
+  - name: Establish SSH connection with all master & worker nodes
+    hosts: all_nodes
+    tasks:
+      - ping:
+    
+#  - name: Configure master nodes
+#    roles:
+#      - role: configure_master 
