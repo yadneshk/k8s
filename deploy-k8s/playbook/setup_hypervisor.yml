@@ -36,18 +36,15 @@
       path: /home/images
       state: directory
       mode: '0755'
-    tags: target
 
   - name: Check for images softlink
     stat: path=/var/lib/libvirt/images
     register: link_status
-    tags: target
 
   - name: Remove images directory
     file:
       path: /var/lib/libvirt/images
       state: absent
-    tags: target
     when: link_status.stat.islnk is defined and 
           link_status.stat.islnk==false and 
           link_status.stat.lnk_target is not defined
@@ -57,7 +54,6 @@
       dest: /var/lib/libvirt/images
       src: /home/images
       state: link
-    tags: target
     when: link_status.stat.islnk is defined and 
           link_status.stat.islnk==false and 
           link_status.stat.lnk_target is not defined
