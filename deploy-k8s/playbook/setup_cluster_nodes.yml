@@ -1,0 +1,44 @@
+---
+  - name: Add kubernetes repos
+    yum_repository:
+      name: kubernetes
+      description: Kubernetes Repo
+      baseurl: https://packages.cloud.google.com/yum/repos/kubernetes-el7-\$basearch
+      enabled: yes
+      gpgcheck: yes
+      repo_gpgcheck: yes
+      gpgkey: https://packages.cloud.google.com/yum/doc/yum-key.gpg https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg
+      exclude: kubelet kubeadm kubectl
+
+  - name: Set SELinux to permissive
+    selinux:
+      policy: targeted
+      state: permissive
+
+  - name: Install kubelet,kubeadm,kubectl
+    yum:
+      disable_excludes: kubernetes
+      name:
+        - firewalld
+        - kubeadm
+        - kubelet
+        - kubectl
+        - docker
+
+  - name: Enable kubelet and docker service
+    service:
+      name: "{{ item }}"
+      enabled: yes
+    loop:
+      - firewalld
+      - docker
+      - kubelet
+
+  - name: Start kubelet and docker service
+    service:
+      name: "{{ item }}"
+      state: started
+    loop:
+      - firewalld
+      - docker
+      - kubelet
