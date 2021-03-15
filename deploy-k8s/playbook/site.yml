@@ -24,10 +24,18 @@
   - name: Master node configs
     hosts: master
     any_errors_fatal: true
-    tags: mas
     vars_files:
       - ./vars/hypervisor_vars.yml
       - ./vars/node_vars.yml
     roles:
       - configure_master
+
+  - name: Setup container networking plugin
+    hosts: master
+    any_errors_fatal: true
+    tags: cni
+    vars_files:
+      - ./vars/cluster_vars.yml
+    roles:
+      - configure_cni
     
