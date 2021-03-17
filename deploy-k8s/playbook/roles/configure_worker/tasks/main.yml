@@ -9,6 +9,7 @@
     loop:
       - 10250/tcp
       - 30000-32767/tcp
+      - 6783/tcp
 
   - name: Join cluster
     command: "{{ join_cmd }}"
