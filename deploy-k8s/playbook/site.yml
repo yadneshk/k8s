@@ -33,9 +33,17 @@
   - name: Setup container networking plugin
     hosts: master
     any_errors_fatal: true
-    tags: cni
     vars_files:
       - ./vars/cluster_vars.yml
     roles:
       - configure_cni
-    
+
+  - name: Join worker nodes
+    hosts: worker
+    vars_files:
+      - ./vars/hypervisor_vars.yml
+      - ./vars/node_vars.yml
+    vars:
+      - join_cmd: "{{ hostvars[hostvars['localhost']['groups']['master'][0]]['join_cmd']['stdout'] }}"
+    roles:
+      - configure_worker

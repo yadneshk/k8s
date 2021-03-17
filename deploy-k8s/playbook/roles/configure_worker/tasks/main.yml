@@ -1,2 +1,15 @@
 ---
 # tasks file for configure_worker
+  - name: Enable ports necessary for master nodes
+    firewalld:
+      port: "{{ item }}"
+      permanent: yes
+      immediate: yes
+      state: enabled
+    loop:
+      - 10250/tcp
+      - 30000-32767/tcp
+
+  - name: Join cluster
+    command: "{{ join_cmd }}"
+

@@ -17,20 +17,17 @@
     stat: 
       path: "{{ kubeadmin_config }}" 
     register: file_stats
-    tags: yadnesh
 
   - name: Initialize control plane
     shell: |
       kubeadm init 
     register: init_cluster
     when: not file_stats.stat.exists
-    tags: yadnesh
 
   - name: Create Kubernetes config directory
     file:
       path: "$HOME/.kube/"
       state: directory
-    tags: yadnesh
 
   - name: Copy admin.conf to Home directory
     when: init_cluster is succeeded
@@ -41,5 +38,12 @@
       group: "{{ ansible_user | default(ansible_user_id) }}"
       mode: 0755
       remote_src: true
-    tags: yadnesh
+
+  - name: get join cmd
+    shell: |
+      kubeadm token create --print-join-command | xargs
+    register: join_cmd
+
+  - set_fact:
+      cmd: join_cmd.stdout
 
