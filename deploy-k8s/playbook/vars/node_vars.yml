@@ -4,7 +4,7 @@ vm_location: "/home/images"
 root_pass: "password"
 
 nodes:
-  master_nodes: 3
+  master_nodes: 1
   master_node_format: "master-"
   worker_nodes: 2
   worker_node_format: "worker-"
