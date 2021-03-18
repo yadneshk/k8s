@@ -1,4 +1,7 @@
 ---
+  - name: Wait 600 seconds for target connection to become reachable/usable
+    wait_for_connection:
+
   - name: Add kubernetes repos
     yum_repository:
       name: kubernetes
@@ -24,24 +27,22 @@
         - kubelet
         - kubectl
         - docker
+        - python-docker
 
   - name: Enable kubelet and docker service
     service:
       name: "{{ item }}"
       enabled: yes
-    loop:
-      - firewalld
-      - docker
-      - kubelet
-
-  - name: Start kubelet and docker service
-    service:
-      name: "{{ item }}"
       state: started
     loop:
       - firewalld
       - docker
       - kubelet
+
+  - name: Login to the docker registry
+    docker_login:
+      username: "{{ username }}" 
+      password: "{{ password }}"
 
   - name: Disable swap
     shell: |

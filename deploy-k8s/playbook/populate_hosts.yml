@@ -22,3 +22,4 @@
       line: "{{ item.stdout_lines[0] }} {{ item.item }}"
       insertafter: "# ANSIBLE MANAGED BLOCK"
     loop: "{{ output.results }}"
+

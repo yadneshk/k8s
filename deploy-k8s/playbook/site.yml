@@ -14,9 +14,13 @@
       - name: Gather ip addresses of cluster nodes
         include_tasks: populate_hosts.yml
 
+      - meta: refresh_inventory
+
   - name: Configure all master & worker nodes
     hosts: all_nodes
     any_errors_fatal: true
+    vars_files:
+      - ./vars/docker_creds.yml
     tasks:
       - name: Setup configurations needed on all nodes
         include_tasks: setup_cluster_nodes.yml
