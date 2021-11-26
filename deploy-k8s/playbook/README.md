@@ -1,7 +1,7 @@
 ## Setup k8s multinode cluster on a KVM host
 
 ### Requirements
-- ansible >= 2.5
+- ansible == 2.9
 
 #### Make sure to `ssh-copy-id` to the KVM host to have password less ssh to root user
 
