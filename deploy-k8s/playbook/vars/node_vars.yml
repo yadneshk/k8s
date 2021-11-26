@@ -10,13 +10,13 @@ nodes:
   worker_node_format: "worker-"
 
 master_specs:
-  mem: 10240
-  cpus: 5
+  mem: 8129
+  cpus: 4
   os_type: rhel7
   file_type: qcow2
 
 worker_specs:
-  mem: 10240
-  cpus: 5
+  mem: 8192
+  cpus: 4
   os_type: rhel7
   file_type: qcow2

@@ -68,13 +68,6 @@
       - network_name: default
         network_file: network.xml.j2
 
-  - name: Start default network
-    virt_net:
-      command: start
-      name: "{{ item }}"
-    loop:
-      - default
-
   - name: Autostart default network
     virt_net:
       autostart: yes

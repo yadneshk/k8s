@@ -11,7 +11,6 @@
       gpgcheck: yes
       repo_gpgcheck: yes
       gpgkey: https://packages.cloud.google.com/yum/doc/yum-key.gpg https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg
-      exclude: kubelet kubeadm kubectl
 
   - name: Set SELinux to permissive
     selinux:
@@ -20,7 +19,6 @@
 
   - name: Install kubelet,kubeadm,kubectl
     yum:
-      disable_excludes: kubernetes
       name:
         - firewalld
         - kubeadm
@@ -41,6 +39,7 @@
 
   - name: Login to the docker registry
     docker_login:
+      registry: docker.io
       username: "{{ username }}" 
       password: "{{ password }}"
 
