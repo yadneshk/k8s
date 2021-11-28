@@ -1,0 +1,2 @@
+*.retry
+vars/docker_creds.yml
