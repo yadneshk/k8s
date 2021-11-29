@@ -13,10 +13,7 @@ $ helm --help
 
 ## Add Prometheus repo to Helm
 ```
-$ helm install prometheus stable/prometheus-operator --namespace prometheus
-$ helm repo update
 $ helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
-$ helm repo add stable https://charts.helm.sh/stable
 $ helm repo update
 ```
 
@@ -27,7 +24,6 @@ $ kubectl create namespace prometheus
 
 ## Use Helm to deploy Prometheus, Grafana and other services used to monitor k8s cluster
 ```
-$ helm install prometheus-community/kube-prometheus-stack --namespace prometheus
 $ helm install prometheus prometheus-community/kube-prometheus-stack --namespace prometheus
 ```
 
@@ -46,6 +42,8 @@ prometheus-prometheus-node-exporter-j4p9b                1/1     Running   0    
 prometheus-prometheus-node-exporter-ktq78                1/1     Running   0          18m
 prometheus-prometheus-node-exporter-q9fc7                1/1     Running   0          18m
 ```
+
+## Copy `kubectl` binary and `kubeconfig` file from master node to KVM host
 
 ## For Prometheus dashboard, listen for traffic on port 8000 on the KVM host and forward it to port 9090 inside the pod
 ```
@@ -71,6 +69,7 @@ Handling connection for 9000
 Handling connection for 9000
 Handling connection for 9000
 ```
+#### With username `admin` and password `prom-operator` you should be able to login into the Grafana dashboard
 
 ## For k8s cluster metrics , listen for traffic on port 7000 on the KVM host and forward it to port 8080 inside the pod
 ```
