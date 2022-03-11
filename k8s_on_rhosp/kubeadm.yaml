@@ -1,0 +1,21 @@
+---
+apiVersion: kubeadm.k8s.io/v1beta2
+kind: InitConfiguration
+nodeRegistration:
+  kubeletExtraArgs:
+    cloud-provider: "external"
+    resolv-conf: "/run/systemd/resolve/resolv.conf"
+
+---
+apiVersion: kubeadm.k8s.io/v1beta2
+kind: ClusterConfiguration
+kubernetesVersion: v1.23.4
+networking:
+  podSubnet: 172.22.0.0/16
+apiServer:
+  extraArgs:
+    cloud-provider: "external"
+controllerManager:
+  extraArgs:
+    cloud-provider: "external"
+
