@@ -1,0 +1,82 @@
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: nginx-deployment-pvc
+  labels:
+    app: nginx
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-deployment
+  namespace: development
+  labels:
+    app: nginx
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      volumes:
+        - name: nginx-deployment-vol
+          persistentVolumeClaim:
+            claimName: nginx-deployment-pvc
+      containers:
+        - name: nginx-container
+          image: registry.redhat.io/rhel9/nginx-124
+          # ports here is just informational, just addit for good practice
+          # the one passed in service config is what matters
+          # ports:
+            # - containerPort: 8080
+              # protocol: TCP
+          volumeMounts:
+            - mountPath: "/var/www/html/"
+              name: nginx-deployment-vol
+      imagePullSecrets:
+        - name: rh-creds
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: development
+  name: nginx-service
+  labels:
+    app: nginx
+spec:
+  ports:
+    - protocol: TCP
+      targetPort: 80
+      port: 80
+  selector:
+    app: nginx
+  type: ClusterIP
+
+
+---
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  namespace: development
+  name: nginx-route
+spec:
+  to:
+    kind: Service
+    name: nginx-service
+  port:
+    targetPort: 80
+  wildcardPolicy: None
+

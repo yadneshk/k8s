@@ -1,0 +1,79 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: httpd-deployment
+  namespace: development
+  labels:
+    app: httpd
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: httpd
+  template:
+    metadata:
+      labels:
+        app: httpd
+    spec:
+      volumes:
+        - name: httpd-deployment-vol
+          persistentVolumeClaim:
+            claimName: httpd-deployment-pvc
+      containers:
+        - name: httpd-container
+          image: quay.io/fedora/httpd-24
+          # ports here is just informational, just addit for good practice
+          # the one passed in service config is what matters
+          # ports:
+            # - containerPort: 8080
+              # protocol: TCP
+          volumeMounts:
+            - mountPath: "/var/www/html/"
+              name: httpd-deployment-vol
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: httpd-deployment-pvc
+  labels:
+    app: httpd
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: httpd-service
+  labels:
+    app: httpd
+spec:
+  ports:
+    - protocol: TCP
+      targetPort: 8080
+      port: 8080
+  selector:
+    app: httpd
+  type: ClusterIP
+
+
+---
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: httpd-route
+spec:
+  to:
+    kind: Service
+    name: httpd-service
+  port:
+    targetPort: 8080
+  wildcardPolicy: None
+
