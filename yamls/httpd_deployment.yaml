@@ -1,4 +1,36 @@
 ---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  # PV is created at cluster level and it not namespace specific
+  name: httpd-deployment-pv
+spec:
+  capacity:
+    storage: 1Gi
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Delete
+  storageClassName: standard
+  hostPath:
+    path: /var/
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: httpd-deployment-pvc
+  namespace: development
+  labels:
+    app: httpd
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: standard
+  resources:
+    requests:
+      storage: 1Gi
+
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -17,35 +49,31 @@ spec:
         app: httpd
     spec:
       volumes:
-        - name: httpd-deployment-vol
+        - name: httpd-deployment-pv
           persistentVolumeClaim:
             claimName: httpd-deployment-pvc
+      nodeSelector:
+        env: prod
       containers:
         - name: httpd-container
           image: quay.io/fedora/httpd-24
           # ports here is just informational, just addit for good practice
           # the one passed in service config is what matters
           # ports:
-            # - containerPort: 8080
-              # protocol: TCP
+          # - containerPort: 8080
+          # protocol: TCP
           volumeMounts:
             - mountPath: "/var/www/html/"
-              name: httpd-deployment-vol
-
----
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: httpd-deployment-pvc
-  labels:
-    app: httpd
-spec:
-  accessModes:
-    - ReadWriteOnce
-  resources:
-    requests:
-      storage: 1Gi
-
+              name: httpd-deployment-pv
+          resources:
+            # used for scheduling and to indicate that a pod cannot run with lass than specified amount
+            requests:
+              cpu: "10m" # 10 millicpus
+              memory: 20Mi
+            # Pod cannot consume compute resource more than this
+            limits:
+              cpu: "80m" # 80 millicpus
+              memory: 100Mi
 
 ---
 apiVersion: v1
@@ -63,7 +91,6 @@ spec:
     app: httpd
   type: ClusterIP
 
-
 ---
 apiVersion: route.openshift.io/v1
 kind: Route
@@ -76,4 +103,3 @@ spec:
   port:
     targetPort: 8080
   wildcardPolicy: None
-

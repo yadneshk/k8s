@@ -1,0 +1,21 @@
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: liveness-check
+  namespace: development
+spec:
+  containers:
+    - name: liveness
+      image: registry.k8s.io/busybox
+      args:
+        - /bin/sh
+        - -c
+        - touch /tmp/healthy; sleep 30; rm -f /tmp/healthy; sleep 120; touch /tmp/healthy
+      livenessProbe:
+        exec:
+          command:
+            - cat
+            - /tmp/healthy
+        initialDelaySeconds: 5 # wait for 5 seconds before performing the first liveness probe
+        periodSeconds: 5 # perform a liveness probe every 5 seconds
